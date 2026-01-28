@@ -1,0 +1,74 @@
+/* App Shell */
+.app-shell {
+  display: flex;
+  height: 100vh;
+  background: #f8fafc;
+  font-family: system-ui, sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  background: #0f172a;
+  color: #e5e7eb;
+  padding: 20px;
+}
+
+.logo {
+  font-size: 22px;
+  margin-bottom: 32px;
+}
+
+.nav-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background: #1e293b;
+}
+
+.nav-item.active {
+  background: #2563eb;
+}
+
+.nav-item.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Main Area */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  height: 60px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.header-meta {
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* Content */
+.content-area {
+  padding: 24px;
+  overflow-y: auto;
+}

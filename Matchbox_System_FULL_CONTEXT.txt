@@ -1,0 +1,226 @@
+
+MATCHBOX SYSTEM – COMPLETE PROJECT CONTEXT (UPDATED)
+
+======================================
+OVERVIEW
+======================================
+This document is a consolidated, up-to-date reference of the Matchbox System project.
+It includes:
+- Original system design
+- All backend & frontend features
+- Fixes, refactors, and decisions made in the latest chat
+- Current deployment-ready status
+
+This file is intended to be used as the starting context for future chats or deployment.
+
+======================================
+TECH STACK
+======================================
+Backend:
+- Flask
+- SQLAlchemy
+- SQLite
+- Flask-CORS
+
+Frontend:
+- React (CRA)
+- Plain fetch API (no axios)
+
+Notifications:
+- Firebase Cloud Messaging (FCM)
+
+Auth:
+- Username + Password (plain text, intentional for internal system)
+
+======================================
+DATABASE SCHEMA
+======================================
+
+Users
+- id
+- name
+- username
+- password
+- role (admin / employee)
+- fcm_token
+
+Chemicals
+- id
+- code
+- is_active
+
+Brands
+- id
+- name
+- expected_sheets_per_kg
+- is_active (present but NOT used in UI logic)
+
+Barrels
+- id
+- barrel_code
+- chemical_id
+- initial_stock_kg
+- current_stock_kg
+- opening_date
+- is_active
+
+ProductionEntries
+- id
+- barrel_id
+- brand_id
+- chemical_used_kg
+- sheets_produced
+- efficiency
+- created_at
+
+======================================
+BACKEND APIs
+======================================
+
+Auth
+POST /api/login
+- Returns user id, name, role
+
+Production Entry
+POST /api/production-entry
+- Validates barrel & brand
+- Calculates expected sheets
+- Calculates efficiency
+- Deducts chemical stock
+- Sends notification to admin on EVERY entry
+
+Production History
+GET /api/production-entries
+- Returns full production history
+- Includes expected sheets & efficiency
+
+DELETE /api/production-entry/<id>
+- Deletes incorrect production entry
+- Restores barrel chemical stock
+
+Brand Management
+GET /api/brands
+- Returns ALL brands (active or inactive)
+
+POST /api/brands
+- Add a new brand with expected sheets/kg
+
+PUT /api/brands/<id>
+- Update expected sheets/kg
+
+DELETE /api/brands/<id>
+- Permanently delete brand
+
+Barrel Chemical Refill
+POST /api/barrels/<id>/refill
+- Adds chemical stock to a barrel
+- Admin-only via UI
+
+Reports
+GET /api/reports/production-summary?range=daily|weekly
+- Aggregated totals per brand
+
+======================================
+FRONTEND FEATURES
+======================================
+
+Login
+- Clean industry-style UI
+- Password toggle
+- Role-aware login
+
+Role-Based Access (UI enforced)
+Admin:
+- Production Entry
+- Production History
+- Brand Management
+- Chemical Refill
+- Reports
+
+Employee:
+- Production Entry only
+
+Production Entry Page
+- Barrel selection
+- Brand autocomplete
+- Live stock validation
+- Expected sheet calculation
+- Efficiency calculation
+- NaN-safe logic
+
+Production History Page
+- Scrollable table with fixed header
+- Color-coded rows (critical / warning / excellent)
+- Filters (date, barrel, brand)
+- CSV export
+- Daily & weekly aggregation logic (UI cleaned, logic retained)
+
+Brand Management Page (MAJOR UPDATE)
+- Add new brand
+- Search brand with autocomplete
+- Update expected sheets/kg
+- Delete brand permanently
+- NO active/inactive logic in UI (simplified UX)
+- Clean admin-friendly design
+
+Chemical Refill Page
+- Admin-only
+- Refill barrel chemical stock
+- Reflected immediately in barrel table
+
+======================================
+NOTIFICATIONS
+======================================
+- Firebase Cloud Messaging implemented
+- Admin receives notification for EVERY production entry
+- Verified working
+
+======================================
+MAJOR ISSUES RESOLVED
+======================================
+- React hook & version issues
+- PowerShell curl issues
+- Backend route mismatches
+- Boolean serialization bugs (SQLite → JS)
+- Brand active/inactive confusion
+- Frontend-backend API misalignment
+- Production entry delete + stock restore consistency
+- UI overflow & usability problems
+
+======================================
+DESIGN DECISIONS (IMPORTANT)
+======================================
+- Brand lifecycle handled by DELETE, not activate/deactivate
+- is_active retained in DB for future use but ignored in UI
+- Role enforcement currently done in frontend only
+- SQLite retained for simplicity
+- Deployment postponed to separate chat
+
+======================================
+CURRENT STATUS
+======================================
+✔ Backend stable
+✔ Frontend stable
+✔ Brand management complete
+✔ Production logic verified
+✔ Notifications working
+✔ Ready for deployment
+
+======================================
+NEXT STEPS (NOT YET DONE)
+======================================
+- Deployment (Railway/Render + Netlify)
+- Backend role enforcement
+- Password hashing (optional)
+- Audit logs
+- Low-stock alerts
+
+======================================
+HOW TO CONTINUE
+======================================
+Open a new chat and say:
+
+"Continue Matchbox System from this README.
+Next task: Deployment"
+
+======================================
