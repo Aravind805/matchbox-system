@@ -10,6 +10,7 @@ from firebase_admin import messaging
 from backend.models import ChemicalRefill
 from datetime import datetime, timedelta
 from sqlalchemy import func
+import firebase_admin
 from firebase_admin import credentials
 
 app = Flask(__name__)
@@ -25,19 +26,19 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-
-if os.getenv("FIREBASE_SERVICE_ACCOUNT"):
-    # Production (Render)
-    cred = credentials.Certificate(
-        json.loads(os.environ["FIREBASE_SERVICE_ACCOUNT"])
-    )
-else:
-    # Local development
-    cred = credentials.Certificate(
-        "backend/firebase_service_account.json"
-    )
-
-firebase_admin.initialize_app(cred)
+if not firebase_admin._apps:
+    if os.getenv("FIREBASE_SERVICE_ACCOUNT"):
+        # Production (Render)
+        cred = credentials.Certificate(
+            json.loads(os.environ["FIREBASE_SERVICE_ACCOUNT"])
+        )
+    else:
+        # Local development
+        cred = credentials.Certificate(
+            "backend/firebase_service_account.json"
+        )
+    print("FIREBASE_SERVICE_ACCOUNT present:", bool(os.getenv("FIREBASE_SERVICE_ACCOUNT")))
+    firebase_admin.initialize_app(cred)
 
 @app.route("/")
 def home():
