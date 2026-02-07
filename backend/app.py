@@ -1,3 +1,5 @@
+import os
+import json
 from flask import Flask,request, jsonify
 from flask_cors import CORS
 from backend.config import Config
@@ -8,6 +10,7 @@ from firebase_admin import messaging
 from backend.models import ChemicalRefill
 from datetime import datetime, timedelta
 from sqlalchemy import func
+from firebase_admin import credentials
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -22,9 +25,17 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-cred = credentials.Certificate(
-    "backend/firebase_service_account.json"
-)
+
+if os.getenv("FIREBASE_SERVICE_ACCOUNT"):
+    # Production (Render)
+    cred = credentials.Certificate(
+        json.loads(os.environ["FIREBASE_SERVICE_ACCOUNT"])
+    )
+else:
+    # Local development
+    cred = credentials.Certificate(
+        "backend/firebase_service_account.json"
+    )
 
 firebase_admin.initialize_app(cred)
 
