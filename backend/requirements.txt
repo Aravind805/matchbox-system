@@ -1,9 +1,8 @@
-flask
-flask_sqlalchemy
-flask_cors
+Flask
+Flask-SQLAlchemy
+Flask-Cors
 firebase-admin
-app
 requests
 pandas
 numpy
-models
+gunicorn
