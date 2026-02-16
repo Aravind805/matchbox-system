@@ -31,19 +31,9 @@ const styles = {
     borderRadius: 10,
     boxShadow: "0 6px 18px rgba(0,0,0,0.08)"
   },
-  title: {
-    fontSize: 15,
-    fontWeight: 600,
-    marginBottom: 8
-  },
   placeholder: {
     fontSize: 13,
     color: "#64748b"
-  },
-  row: {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: 14
   },
   title: {
   fontSize: 14,
