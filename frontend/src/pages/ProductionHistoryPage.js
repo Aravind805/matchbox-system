@@ -11,7 +11,7 @@ export default function ProductionHistoryPage() {
   const [brand, setBrand] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/production-entries")
+    fetch(`${process.env.REACT_APP_API_URL}/api/production-entries`)
       .then(res => res.json())
       .then(setEntries)
       .catch(console.error);
@@ -28,7 +28,7 @@ export default function ProductionHistoryPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/production-entry/${entryId}`,
+        `${process.env.REACT_APP_API_URL}/api/production-entry/${entryId}`,
         { method: "DELETE" }
       );
 

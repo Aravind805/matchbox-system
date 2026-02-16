@@ -17,7 +17,7 @@ export default function BrandManagementPage() {
      Load brands
   ---------------------------- */
   useEffect(() => {
-    fetch("http://localhost:5000/api/brands")
+    fetch(`${process.env.REACT_APP_API_URL}/api/brands`)
       .then(res => res.json())
       .then(data => setBrands(data))
       .catch(console.error);
@@ -32,7 +32,7 @@ export default function BrandManagementPage() {
       return;
     }
 
-    const res = await fetch("http://localhost:5000/api/brands", {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/brands`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -74,7 +74,7 @@ export default function BrandManagementPage() {
   ---------------------------- */
   const updateExpected = async () => {
     const res = await fetch(
-      `http://localhost:5000/api/brands/${selectedBrand.id}`,
+      `${process.env.REACT_APP_API_URL}/api/brands/${selectedBrand.id}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -110,7 +110,7 @@ export default function BrandManagementPage() {
     if (!ok) return;
 
     const res = await fetch(
-      `http://localhost:5000/api/brands/${selectedBrand.id}`,
+      `${process.env.REACT_APP_API_URL}/api/brands/${selectedBrand.id}`,
       { method: "DELETE" }
     );
 

@@ -25,11 +25,11 @@ export default function ProductionForm({
      Fetch barrels & brands
   ---------------------------- */
   useEffect(() => {
-    fetch("http://localhost:5000/api/barrels")
+    fetch(`${process.env.REACT_APP_API_URL}/api/barrels`)
       .then(res => res.json())
       .then(setBarrels);
 
-    fetch("http://localhost:5000/api/brands")
+    fetch(`${process.env.REACT_APP_API_URL}/api/brands`)
       .then(res => res.json())
       .then(setBrands);
   }, []);
@@ -73,7 +73,7 @@ export default function ProductionForm({
     try {
       setSubmitting(true);
 
-      const res = await fetch("http://localhost:5000/api/production-entry", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/production-entry`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -13,7 +13,7 @@ function ProductionSummaryPage() {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://localhost:5000/api/reports/production-summary?range=${selectedRange}`
+        `${process.env.REACT_APP_API_URL}/api/reports/production-summary?range=${selectedRange}`
       );
       const json = await res.json();
       setData(json);

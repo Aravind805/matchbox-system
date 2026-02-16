@@ -1,9 +1,0 @@
-flask
-flask_sqlalchemy
-flask_cors
-firebase-admin
-app
-requests
-pandas
-numpy
-models

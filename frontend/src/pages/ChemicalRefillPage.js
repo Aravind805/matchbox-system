@@ -7,7 +7,7 @@ export default function ChemicalRefillPage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/barrels")
+    fetch(`${process.env.REACT_APP_API_URL}/api/barrels`)
       .then(res => res.json())
       .then(setBarrels)
       .catch(console.error);
@@ -21,7 +21,7 @@ export default function ChemicalRefillPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/barrels/${barrelId}/refill`,
+        `${process.env.REACT_APP_API_URL}/api/barrels/${barrelId}/refill`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
