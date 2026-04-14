@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { theme, icons, buildCardStyles, buildInputStyles, buildButtonStyles, getThemeColors } from "../theme";
 
 export default function LoginPage({ onLogin }) {
   const [username, setUsername] = useState("");
@@ -34,47 +35,78 @@ export default function LoginPage({ onLogin }) {
     }
   };
 
+  const colors = getThemeColors();
+
   return (
-    <div style={styles.page}>
-      <form style={styles.card} onSubmit={handleSubmit}>
-        <h2 style={styles.title}>Sign in</h2>
-        <p style={styles.subtitle}>Enter your credentials</p>
+    <>
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+      <div style={styles.page}>
+        <form style={{ ...buildCardStyles(), ...styles.card }} onSubmit={handleSubmit}>
+          <div style={styles.logoContainer}>
+            {icons.flame}
+            <h1 style={styles.logoText}>Matchbox</h1>
+          </div>
+          <p style={styles.subtitle}>Enter your credentials</p>
 
-        <div style={styles.inputWrapper}>
-  <input
-    type="text"
-    placeholder="Username"
-    value={username}
-    onChange={e => setUsername(e.target.value)}
-    style={styles.textInput}
-  />
-</div>
-        <div style={styles.passwordWrapper}>
-  <input
-    type={showPassword ? "text" : "password"}
-    placeholder="Password"
-    value={password}
-    onChange={e => setPassword(e.target.value)}
-    style={styles.passwordInput}
-  />
+          <div style={styles.inputWrapper}>
+            <div style={styles.inputContainer}>
+              {icons.user}
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                style={buildInputStyles()}
+              />
+            </div>
+          </div>
 
-  <span
-    style={styles.eye}
-    onClick={() => setShowPassword(!showPassword)}
-  >
-    {showPassword ? "🙈" : "👁️"}
-  </span>
-</div>
+          <div style={styles.inputWrapper}>
+            <div style={styles.inputContainer}>
+              {icons.lock}
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                style={buildInputStyles()}
+              />
+              <button
+                type="button"
+                style={styles.eyeButton}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
+          </div>
 
+          <button style={{ ...buildButtonStyles('primary'), ...styles.submitButton }} disabled={loading}>
+            {loading ? (
+              <>
+                <svg style={styles.spinner} viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" strokeDasharray="31.416" strokeDashoffset="31.416">
+                    <animate attributeName="stroke-dashoffset" dur="1s" repeatCount="indefinite" values="31.416;0" />
+                  </circle>
+                </svg>
+                Signing in...
+              </>
+            ) : (
+              "Login"
+            )}
+          </button>
 
-
-        <button style={styles.button} disabled={loading}>
-          {loading ? "Signing in..." : "Login"}
-        </button>
-
-        {error && <p style={styles.error}>{error}</p>}
-      </form>
-    </div>
+          {error && <div style={styles.errorBanner}>{error}</div>}
+        </form>
+      </div>
+    </>
   );
 }
 
@@ -84,95 +116,64 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background:
-      "linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%)"
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    fontFamily: theme.typography.fontFamily,
   },
-
   card: {
-    width: 340,
-    padding: 28,
-    borderRadius: 16,
-    background: "rgba(255,255,255,0.92)",
-    backdropFilter: "blur(10px)",
-    boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
-    textAlign: "center"
+    width: 360,
+    textAlign: "center",
   },
-
-  title: {
-    fontSize: 22,
-    fontWeight: 700,
-    marginBottom: 6
+  logoContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: theme.spacing.small,
+    marginBottom: theme.spacing.small,
+    color: theme.colors.primary,
   },
-
+  logoText: {
+    ...theme.typography.pageTitle,
+    margin: 0,
+    color: theme.colors.primary,
+  },
   subtitle: {
-    fontSize: 13,
-    color: "#64748b",
-    marginBottom: 18
+    ...theme.typography.body,
+    color: theme.colors.textMuted,
+    marginBottom: theme.spacing.gap,
   },
-
-  input: {
-  width: "100%",
-  padding: "12px 44px 12px 12px", // ⬅ extra RIGHT padding
-  borderRadius: 10,
-  border: "1px solid #e5e7eb",
-  fontSize: 14,
-  outline: "none"
-},
-  button: {
-    width: "100%",
-    padding: 10,
-    borderRadius: 999,
+  inputWrapper: {
+    marginBottom: theme.spacing.gap,
+  },
+  inputContainer: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+  },
+  eyeButton: {
+    position: "absolute",
+    right: 12,
+    background: "none",
     border: "none",
-    background: "linear-gradient(90deg, #6366f1, #8b5cf6)",
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: 600,
-    cursor: "pointer"
+    cursor: "pointer",
+    fontSize: 16,
+    color: theme.colors.textMuted,
+    padding: 0,
   },
-
-  error: {
-    marginTop: 10,
-    fontSize: 13,
-    color: "#dc2626"
+  submitButton: {
+    width: "100%",
+    marginTop: theme.spacing.small,
   },
-  passwordWrapper: {
-  position: "relative",
-  width: "100%",
-  marginBottom: 14
-},
-eye: {
-  position: "absolute",
-  right: 14,
-  top: "50%",
-  transform: "translateY(-50%)",
-  cursor: "pointer",
-  fontSize: 16,
-  color: "#64748b",
-  lineHeight: 1
-},
-passwordInput: {
-  width: "100%",
-  padding: "12px 46px 12px 12px", // ⬅ space for eye
-  borderRadius: 10,
-  border: "1px solid #e5e7eb",
-  fontSize: 14,
-  outline: "none",
-  boxSizing: "border-box" // 🔥 CRITICAL
-},
-inputWrapper: {
-  position: "relative",
-  width: "100%",
-  marginBottom: 14
-},
-
-textInput: {
-  width: "100%",
-  padding: "12px",
-  borderRadius: 10,
-  border: "1px solid #e5e7eb",
-  fontSize: 14,
-  outline: "none",
-  boxSizing: "border-box", // 🔥 prevents overflow bugs
-  background: "#fff"
-}
+  spinner: {
+    width: 16,
+    height: 16,
+    animation: "spin 1s linear infinite",
+  },
+  errorBanner: {
+    marginTop: theme.spacing.gap,
+    padding: theme.spacing.small,
+    background: theme.colors.danger,
+    color: theme.colors.background,
+    borderRadius: theme.borderRadius.button,
+    fontSize: theme.typography.small.fontSize,
+  },
 };

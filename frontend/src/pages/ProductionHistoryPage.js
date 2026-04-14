@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import ProductionHistoryTable from "../components/production/ProductionHistoryTable";
+import { theme, buildButtonStyles } from "../theme";
 
 export default function ProductionHistoryPage() {
   const [entries, setEntries] = useState([]);
@@ -98,42 +99,60 @@ export default function ProductionHistoryPage() {
   return (
     <div style={styles.page}>
       <div style={styles.canvas}>
-        {/* HEADER */}
-        <div style={styles.header}>
-          <h2>Production History</h2>
-          <button style={styles.button} onClick={downloadCSV}>
+        {/* FILTERS */}
+        <div style={styles.filtersCard}>
+          <div style={styles.filters}>
+            <div style={styles.filterGroup}>
+              <label style={styles.filterLabel}>From Date</label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={e => setFromDate(e.target.value)}
+                style={styles.filterInput}
+              />
+            </div>
+            <div style={styles.filterGroup}>
+              <label style={styles.filterLabel}>To Date</label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={e => setToDate(e.target.value)}
+                style={styles.filterInput}
+              />
+            </div>
+            <div style={styles.filterGroup}>
+              <label style={styles.filterLabel}>Barrel</label>
+              <select
+                value={barrel}
+                onChange={e => setBarrel(e.target.value)}
+                style={styles.filterInput}
+              >
+                <option value="">All Barrels</option>
+                {barrels.map(b => <option key={b}>{b}</option>)}
+              </select>
+            </div>
+            <div style={styles.filterGroup}>
+              <label style={styles.filterLabel}>Brand</label>
+              <select
+                value={brand}
+                onChange={e => setBrand(e.target.value)}
+                style={styles.filterInput}
+              >
+                <option value="">All Brands</option>
+                {brands.map(b => <option key={b}>{b}</option>)}
+              </select>
+            </div>
+          </div>
+          <button style={styles.downloadButton} onClick={downloadCSV}>
             Download CSV
           </button>
-        </div>
-
-        {/* LEGEND */}
-        <div style={styles.legend}>
-          <span style={{ background: "#dcfce7" }}>Excellent</span>
-          <span style={{ background: "#fef3c7" }}>Below Expected</span>
-          <span style={{ background: "#fee2e2" }}>Critical</span>
-        </div>
-
-        {/* FILTERS */}
-        <div style={styles.filters}>
-          <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} />
-          <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} />
-
-          <select value={barrel} onChange={e => setBarrel(e.target.value)}>
-            <option value="">All Barrels</option>
-            {barrels.map(b => <option key={b}>{b}</option>)}
-          </select>
-
-          <select value={brand} onChange={e => setBrand(e.target.value)}>
-            <option value="">All Brands</option>
-            {brands.map(b => <option key={b}>{b}</option>)}
-          </select>
         </div>
 
         {/* TABLE */}
         <ProductionHistoryTable
           entries={filteredEntries}
-          role="admin"
           onDelete={handleDelete}
+          dark={false} // assuming no dark for now, can add later
         />
       </div>
     </div>
@@ -141,62 +160,59 @@ export default function ProductionHistoryPage() {
 }
 
 
-/* ---------------------------
-   Styles
----------------------------- */
 const styles = {
   page: {
     width: "100%",
     display: "flex",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   canvas: {
-    background: "#fff",
+    background: "#ffffff",
     padding: 32,
     borderRadius: 16,
-    width: 1000,
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)"
-  },
-  header: {
+    width: "95%",
+    maxWidth: 1200,
+    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
     display: "flex",
-    justifyContent: "space-between",
-    marginBottom: 16
+    flexDirection: "column",
+    gap: theme.spacing.gap,
+  },
+  filtersCard: {
+    background: "#ffffff",
+    padding: theme.spacing.card,
+    borderRadius: theme.borderRadius.card,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+    display: "flex",
+    alignItems: "flex-end",
+    gap: theme.spacing.gap,
+    flexWrap: "wrap",
   },
   filters: {
     display: "flex",
-    gap: 12,
-    marginBottom: 12
+    gap: theme.spacing.gap,
+    flex: 1,
+    flexWrap: "wrap",
   },
-  toggles: {
+  filterGroup: {
     display: "flex",
-    gap: 20,
-    marginBottom: 16,
-    fontSize: 14
+    flexDirection: "column",
+    minWidth: 120,
   },
-  button: {
-    padding: "8px 14px",
-    background: "#2563eb",
-    color: "#fff",
-    border: "none",
-    borderRadius: 6,
-    cursor: "pointer"
+  filterLabel: {
+    ...theme.typography.small,
+    marginBottom: theme.spacing.tiny,
+    fontWeight: 500,
+    color: theme.colors.text,
   },
-  summaryGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 16,
-    marginBottom: 24
+  filterInput: {
+    padding: theme.spacing.small,
+    borderRadius: theme.borderRadius.input,
+    border: `1px solid ${theme.colors.border}`,
+    fontSize: theme.typography.body.fontSize,
+    outline: "none",
   },
-  summaryCard: {
-    background: "#f8fafc",
-    padding: 16,
-    borderRadius: 10
-  },
-  summaryRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: 13,
-    marginTop: 6
+  downloadButton: {
+    ...buildButtonStyles('secondary'),
   },
   legend: {
   display: "flex",
@@ -209,3 +225,4 @@ const styles = {
     color: "#64748b"
   }
 };
+  

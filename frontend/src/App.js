@@ -26,28 +26,31 @@ function App() {
         <Sidebar
           activePage={activePage}
           onNavigate={setActivePage}
-          role={user.role}   
+          role={user.role}
           dark={dark}
           onToggleDark={() => setDark(!dark)}
           onLogout={() => setUser(null)}
         />
       }
+      user={user}
+      activePage={activePage}
+      dark={dark}
     >
-      {activePage === "entry" && <ProductionEntryPage />}
+      {activePage === "entry" && <ProductionEntryPage dark={dark} />}
 
       {/* 🔒 ADMIN ONLY */}
       {activePage === "history" && user.role === "admin" && (
-        <ProductionHistoryPage />
+        <ProductionHistoryPage dark={dark} />
       )}
       {activePage === "summary" && user.role === "admin" && (
-  <ProductionSummaryPage />
-)}
-{activePage === "refill" && user.role === "admin" && (
-  <ChemicalRefillPage />
-)}
-{activePage === "brands" && user.role === "admin" && (
-  <BrandManagementPage />
-)}
+        <ProductionSummaryPage dark={dark} />
+      )}
+      {activePage === "refill" && user.role === "admin" && (
+        <ChemicalRefillPage dark={dark} />
+      )}
+      {activePage === "brands" && user.role === "admin" && (
+        <BrandManagementPage dark={dark} />
+      )}
     </DashboardLayout>
   );
 }

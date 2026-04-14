@@ -1,49 +1,65 @@
-export default function SheetPerformanceCard({ actualSheets }) {
-  // If nothing submitted yet
+import { theme, buildCardStyles, getThemeColors, icons } from "../../theme";
+
+export default function SheetPerformanceCard({ actualSheets, dark = false }) {
+  const colors = getThemeColors(dark);
+
   if (actualSheets == null) {
     return (
-      <div style={styles.card}>
-        <h4 style={styles.title}>Production Output</h4>
-        <p style={styles.placeholder}>Submit a production entry</p>
+      <div style={{ ...buildCardStyles(dark), ...styles.card }}>
+        <div style={styles.header}>
+          <div style={styles.icon}>{icons.clipboard}</div>
+          <h4 style={{ ...theme.typography.body, color: colors.text, fontWeight: 600 }}>Production Output</h4>
+        </div>
+        <p style={{ ...styles.placeholder, color: colors.textMuted }}>Submit a production entry</p>
       </div>
     );
   }
 
   return (
-    <div style={styles.card}>
-      <h4 style={styles.title}>Production Output</h4>
+    <div style={{ ...buildCardStyles(dark), ...styles.card }}>
+      <div style={styles.header}>
+        <div style={styles.icon}>{icons.clipboard}</div>
+        <h4 style={{ ...theme.typography.body, color: colors.text, fontWeight: 600 }}>Production Output</h4>
+      </div>
 
-      <div style={styles.row}>
-        <span>Actual Sheets Produced</span>
-        <strong>{actualSheets}</strong>
+      <div style={styles.metric}>
+        <div style={{ ...styles.largeNumber, color: colors.text }}>{actualSheets}</div>
+        <div style={{ ...styles.label, color: colors.textMuted }}>sheets produced</div>
       </div>
     </div>
   );
 }
 
-/* ---------------------------
-   Styles
----------------------------- */
 const styles = {
   card: {
-    background: "#ffffff",
-    padding: 16,
-    borderRadius: 10,
-    boxShadow: "0 6px 18px rgba(0,0,0,0.08)"
+    position: "relative",
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing.small,
+    marginBottom: theme.spacing.gap,
+  },
+  icon: {
+    fontSize: 20,
+    color: theme.colors.primary,
   },
   placeholder: {
-    fontSize: 13,
-    color: "#64748b"
+    ...theme.typography.body,
+    textAlign: "center",
+    margin: 0,
   },
-  title: {
-  fontSize: 14,
-  fontWeight: 600,
-  color: "#334155"
-},
-row: {
-  display: "flex",
-  justifyContent: "space-between",
-  fontSize: 14,
-  padding: "6px 0"
-}
+  metric: {
+    textAlign: "center",
+  },
+  largeNumber: {
+    ...theme.typography.pageTitle,
+    fontSize: 32,
+    fontWeight: 700,
+    lineHeight: 1,
+  },
+  label: {
+    ...theme.typography.small,
+    marginTop: theme.spacing.tiny,
+  },
 };

@@ -1,48 +1,53 @@
-export default function EfficiencyCard({ expected, actual }) {
+import { theme, buildCardStyles, getThemeColors, icons } from "../../theme";
+
+export default function EfficiencyCard({ expected, actual, dark = false }) {
+  const colors = getThemeColors(dark);
+
   if (actual == null) {
     return (
-      <div style={styles.card}>
-        <h4 style={styles.title}>Efficiency</h4>
-        <p style={styles.placeholder}>Submit a production entry</p>
+      <div style={{ ...buildCardStyles(dark), ...styles.card }}>
+        <div style={styles.header}>
+          <div style={styles.icon}>{icons.chart}</div>
+          <h4 style={{ ...theme.typography.body, color: colors.text, fontWeight: 600 }}>Efficiency</h4>
+        </div>
+        <p style={{ ...styles.placeholder, color: colors.textMuted }}>Submit a production entry</p>
       </div>
     );
   }
 
+  const efficiency = ((actual / expected) * 100).toFixed(1);
   const variance = (actual - expected).toFixed(2);
 
   let status = "GOOD";
-  let color = "#16a34a";
+  let statusColor = theme.colors.success;
+  let iconColor = theme.colors.success;
 
   if (actual < expected * 0.8) {
     status = "POOR";
-    color = "#dc2626";
+    statusColor = theme.colors.danger;
+    iconColor = theme.colors.danger;
   } else if (actual < expected) {
     status = "AVERAGE";
-    color = "#f59e0b";
+    statusColor = theme.colors.warning;
+    iconColor = theme.colors.warning;
   }
 
   return (
-    <div style={styles.card}>
+    <div style={{ ...buildCardStyles(dark), ...styles.card }}>
       <div style={styles.header}>
-        <h4 style={styles.title}>Efficiency</h4>
-        <span style={{ ...styles.badge, background: color }}>
+        <div style={{ ...styles.icon, color: iconColor }}>{icons.chart}</div>
+        <h4 style={{ ...theme.typography.body, color: colors.text, fontWeight: 600 }}>Efficiency</h4>
+      </div>
+
+      <div style={styles.metric}>
+        <div style={{ ...styles.largeNumber, color: colors.text }}>{efficiency}%</div>
+        <div style={{ ...styles.label, color: colors.textMuted }}>efficiency rate</div>
+      </div>
+
+      <div style={styles.statusBadge}>
+        <span style={{ background: statusColor, color: theme.colors.background, borderRadius: theme.borderRadius.button, padding: "6px 16px", fontWeight: 600, fontSize: "0.9em" }}>
           {status}
         </span>
-      </div>
-
-      <div style={styles.row}>
-        <span>Expected</span>
-        <strong>{expected}%</strong>
-      </div>
-
-      <div style={styles.row}>
-        <span>Actual</span>
-        <strong>{actual}%</strong>
-      </div>
-
-      <div style={styles.row}>
-        <span>Variance</span>
-        <strong>{variance}%</strong>
       </div>
     </div>
   );
@@ -50,37 +55,38 @@ export default function EfficiencyCard({ expected, actual }) {
 
 const styles = {
   card: {
-    background: "#ffffff",
-    padding: 16,
-    borderRadius: 10,
-    boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-    marginTop: 16
+    position: "relative",
   },
   header: {
     display: "flex",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10
+    gap: theme.spacing.small,
+    marginBottom: theme.spacing.gap,
   },
-  title: {
-    fontSize: 15,
-    fontWeight: 600
+  icon: {
+    fontSize: 20,
   },
   placeholder: {
-    fontSize: 13,
-    color: "#64748b"
+    ...theme.typography.body,
+    textAlign: "center",
+    margin: 0,
   },
-  row: {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: 13,
-    marginBottom: 6
+  metric: {
+    textAlign: "center",
+    marginBottom: theme.spacing.gap,
   },
-  badge: {
-    color: "#fff",
-    padding: "2px 8px",
-    borderRadius: 10,
-    fontSize: 11,
-    fontWeight: 600
-  }
+  largeNumber: {
+    ...theme.typography.pageTitle,
+    fontSize: 32,
+    fontWeight: 700,
+    lineHeight: 1,
+  },
+  label: {
+    ...theme.typography.small,
+    marginTop: theme.spacing.tiny,
+  },
+  statusBadge: {
+    marginTop: theme.spacing.medium,
+    textAlign: "center",
+  },
 };

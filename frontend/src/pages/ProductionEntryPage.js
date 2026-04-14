@@ -1,72 +1,73 @@
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
 import ProductionForm from "../components/production/ProductionForm";
 import BarrelInfoCard from "../components/production/BarrelInfoCard";
+import EfficiencyCard from "../components/production/EfficiencyCard";
 import SheetPerformanceCard from "../components/production/SheetPerformanceCard";
+import { theme, getResponsiveValue } from "../theme";
 
-export default function ProductionEntryPage() {
+export default function ProductionEntryPage({ dark = false }) {
   const [selectedBarrel, setSelectedBarrel] = useState(null);
   const [productionResult, setProductionResult] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < theme.breakpoints.mobile);
 
-  const expectedSheets =
-    productionResult && productionResult.expectedSheetsPerKg
-      ? productionResult.chemicalUsedKg *
-        productionResult.expectedSheetsPerKg
-      : null;
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < theme.breakpoints.mobile);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const expectedSheets = productionResult?.expectedSheets || null;
 
   return (
     <div style={styles.page}>
-      <div style={styles.canvas}>
-        <div style={styles.grid}>
-          {/* LEFT */}
-          <ProductionForm
-            onBarrelChange={setSelectedBarrel}
-            onProductionResult={setProductionResult}
+      <div style={{
+        ...styles.canvas,
+        gridTemplateColumns: isMobile ? "1fr" : "520px 360px",
+        gap: isMobile ? theme.spacing.gap : 32,
+      }}>
+        {/* LEFT */}
+        <ProductionForm
+          onBarrelChange={setSelectedBarrel}
+          onProductionResult={setProductionResult}
+          dark={dark}
+        />
+
+        {/* RIGHT */}
+        <div style={styles.right}>
+          <BarrelInfoCard barrel={selectedBarrel} dark={dark} />
+          <EfficiencyCard
+            expected={expectedSheets}
+            actual={productionResult?.actualSheets}
+            dark={dark}
           />
-
-          {/* RIGHT */}
-          <div style={styles.right}>
-            <BarrelInfoCard barrel={selectedBarrel} />
-
-            <SheetPerformanceCard
-              expectedSheets={expectedSheets}
-              actualSheets={productionResult?.actualSheets}
-            />
-          </div>
+          <SheetPerformanceCard
+            actualSheets={productionResult?.actualSheets}
+            dark={dark}
+          />
         </div>
       </div>
     </div>
   );
 }
 
-/* ---------------------------
-   Layout Styles
----------------------------- */
 const styles = {
   page: {
     width: "100%",
     display: "flex",
-    justifyContent: "center"
+    justifyContent: "center",
   },
-
   canvas: {
     background: "#ffffff",
     padding: 32,
     borderRadius: 16,
-    width: 920,
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)"
-  },
-
-  grid: {
+    width: getResponsiveValue("95%", 920),
+    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
     display: "grid",
-    gridTemplateColumns: "520px 360px",
-    gap: 32,
-    alignItems: "start"
+    alignItems: "start",
   },
-
   right: {
     display: "flex",
     flexDirection: "column",
-    gap: 16
-  }
+    gap: theme.spacing.gap,
+  },
 };

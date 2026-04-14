@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
+import { theme, buildCardStyles, buildInputStyles, buildButtonStyles, getThemeColors, icons } from "../theme";
 
-export default function BrandManagementPage() {
+export default function BrandManagementPage({ dark = false }) {
   const [brands, setBrands] = useState([]);
+  const colors = getThemeColors(dark);
 
   // add brand
+  const [showAddForm, setShowAddForm] = useState(false);
   const [newName, setNewName] = useState("");
   const [newExpected, setNewExpected] = useState("");
 
-  // search & manage
-  const [query, setQuery] = useState("");
-  const [selectedBrand, setSelectedBrand] = useState(null);
-  const [expected, setExpected] = useState("");
+  // edit
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editExpected, setEditExpected] = useState("");
+
+  // message
   const [message, setMessage] = useState("");
 
   /* ---------------------------
@@ -28,7 +33,7 @@ export default function BrandManagementPage() {
   ---------------------------- */
   const addBrand = async () => {
     if (!newName || !newExpected || newExpected <= 0) {
-      alert("Enter valid brand details");
+      setMessage("Please enter valid brand details");
       return;
     }
 
@@ -43,198 +48,283 @@ export default function BrandManagementPage() {
 
     const json = await res.json();
     if (!res.ok) {
-      alert(json.error || "Failed to add brand");
+      setMessage(json.error || "Failed to add brand");
       return;
     }
 
     setBrands(prev => [...prev, json.brand]);
     setNewName("");
     setNewExpected("");
+    setShowAddForm(false);
     setMessage("Brand added successfully");
   };
 
   /* ---------------------------
-     Search
+     Edit brand
   ---------------------------- */
-  const suggestions = query
-    ? brands.filter(b =>
-        b.name.toLowerCase().includes(query.toLowerCase())
-      )
-    : [];
-
-  const selectBrand = (brand) => {
-    setSelectedBrand(brand);
-    setExpected(brand.expected_sheets_per_kg);
-    setQuery(brand.name);
-    setMessage("");
+  const startEdit = (brand) => {
+    setEditingId(brand.id);
+    setEditName(brand.name);
+    setEditExpected(brand.expected_sheets_per_kg);
   };
 
-  /* ---------------------------
-     Update expected sheets
-  ---------------------------- */
-  const updateExpected = async () => {
+  const saveEdit = async () => {
     const res = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/brands/${selectedBrand.id}`,
+      `${process.env.REACT_APP_API_URL}/api/brands/${editingId}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          expected_sheets_per_kg: Number(expected)
+          name: editName,
+          expected_sheets_per_kg: Number(editExpected)
         })
       }
     );
 
     if (!res.ok) {
-      alert("Failed to update brand");
+      setMessage("Failed to update brand");
       return;
     }
 
     setBrands(prev =>
       prev.map(b =>
-        b.id === selectedBrand.id
-          ? { ...b, expected_sheets_per_kg: Number(expected) }
+        b.id === editingId
+          ? { ...b, name: editName, expected_sheets_per_kg: Number(editExpected) }
           : b
       )
     );
 
-    setMessage("Expected sheets updated");
+    setEditingId(null);
+    setMessage("Brand updated successfully");
   };
 
   /* ---------------------------
      Delete brand
   ---------------------------- */
-  const deleteBrand = async () => {
+  const deleteBrand = async (id) => {
     const ok = window.confirm(
       "Delete this brand permanently?\nThis cannot be undone."
     );
     if (!ok) return;
 
     const res = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/brands/${selectedBrand.id}`,
+      `${process.env.REACT_APP_API_URL}/api/brands/${id}`,
       { method: "DELETE" }
     );
 
     if (!res.ok) {
-      alert("Failed to delete brand");
+      setMessage("Failed to delete brand");
       return;
     }
 
-    setBrands(prev =>
-      prev.filter(b => b.id !== selectedBrand.id)
-    );
-
-    setSelectedBrand(null);
-    setQuery("");
-    setExpected("");
+    setBrands(prev => prev.filter(b => b.id !== id));
+    setMessage("Brand deleted successfully");
   };
 
   return (
-    <div style={{ padding: 24, maxWidth: 520 }}>
-      <h2>Brand Management</h2>
+    <div style={styles.page}>
+      <div style={styles.container}>
+        <div style={styles.header}>
+          <h1 style={{ ...theme.typography.pageTitle, color: colors.text }}>Brand Management</h1>
+          <button
+            style={buildButtonStyles('primary')}
+            onClick={() => setShowAddForm(true)}
+          >
+            {icons.plus} Add Brand
+          </button>
+        </div>
 
-      {/* ADD BRAND */}
-      <div style={styles.card}>
-        <h4>Add New Brand</h4>
-        <input
-          placeholder="Brand name"
-          value={newName}
-          onChange={e => setNewName(e.target.value)}
-          style={styles.input}
-        />
-        <input
-          type="number"
-          placeholder="Expected sheets / kg"
-          value={newExpected}
-          onChange={e => setNewExpected(e.target.value)}
-          style={styles.input}
-        />
-        <button onClick={addBrand}>Add Brand</button>
-      </div>
-
-      {/* SEARCH */}
-      <div style={styles.card}>
-        <h4>Search Brand</h4>
-        <input
-          placeholder="Type brand name..."
-          value={query}
-          onChange={e => {
-            setQuery(e.target.value);
-            setSelectedBrand(null);
-          }}
-          style={styles.input}
-        />
-
-        {query && !selectedBrand && suggestions.length > 0 && (
-          <div style={styles.suggestions}>
-            {suggestions.slice(0, 8).map(b => (
-              <div
-                key={b.id}
-                style={styles.suggestion}
-                onClick={() => selectBrand(b)}
-              >
-                {b.name}
-              </div>
-            ))}
+        {message && (
+          <div style={{
+            ...styles.message,
+            background: message.includes("successfully") ? theme.colors.success : theme.colors.danger,
+          }}>
+            {message}
           </div>
         )}
-      </div>
 
-      {/* BRAND ACTIONS */}
-      {selectedBrand && (
-        <div style={styles.card}>
-          <h4>{selectedBrand.name}</h4>
-
-          <label>Expected Sheets / kg</label>
-          <input
-            type="number"
-            value={expected}
-            onChange={e => setExpected(e.target.value)}
-            style={styles.input}
-          />
-
-          <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={updateExpected}>Save</button>
-            <button onClick={deleteBrand} style={styles.danger}>
-              Delete
-            </button>
+        {/* Add Form */}
+        {showAddForm && (
+          <div style={{ ...buildCardStyles(dark), ...styles.addForm }}>
+            <h3 style={{ ...theme.typography.sectionHeader, color: colors.text }}>Add New Brand</h3>
+            <div style={styles.formRow}>
+              <input
+                placeholder="Brand name"
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
+                style={buildInputStyles(dark)}
+              />
+              <input
+                type="number"
+                placeholder="Expected sheets / kg"
+                value={newExpected}
+                onChange={e => setNewExpected(e.target.value)}
+                style={buildInputStyles(dark)}
+              />
+            </div>
+            <div style={styles.formActions}>
+              <button style={buildButtonStyles('secondary')} onClick={() => setShowAddForm(false)}>
+                Cancel
+              </button>
+              <button style={buildButtonStyles('primary')} onClick={addBrand}>
+                Add Brand
+              </button>
+            </div>
           </div>
+        )}
 
-          {message && <p style={{ color: "green" }}>{message}</p>}
+        {/* Brands Table */}
+        <div style={{ ...buildCardStyles(dark), ...styles.tableCard }}>
+          <table style={styles.table}>
+            <thead>
+              <tr style={{ background: "#f8fafc" }}>
+                <th style={styles.th}>Status</th>
+                <th style={styles.th}>Name</th>
+                <th style={styles.th}>Expected Sheets/kg</th>
+                <th style={styles.th}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {brands.map(brand => (
+                <tr key={brand.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  <td style={styles.td}>
+                    <div style={{ ...styles.statusDot, background: theme.colors.success }}></div>
+                  </td>
+                  <td style={styles.td}>
+                    {editingId === brand.id ? (
+                      <input
+                        value={editName}
+                        onChange={e => setEditName(e.target.value)}
+                        style={buildInputStyles(dark)}
+                      />
+                    ) : (
+                      <span style={{ color: colors.text }}>{brand.name}</span>
+                    )}
+                  </td>
+                  <td style={styles.td}>
+                    {editingId === brand.id ? (
+                      <input
+                        type="number"
+                        value={editExpected}
+                        onChange={e => setEditExpected(e.target.value)}
+                        style={buildInputStyles(dark)}
+                      />
+                    ) : (
+                      <span style={{ color: colors.text }}>{brand.expected_sheets_per_kg}</span>
+                    )}
+                  </td>
+                  <td style={styles.td}>
+                    {editingId === brand.id ? (
+                      <div style={styles.editActions}>
+                        <button style={buildButtonStyles('primary')} onClick={saveEdit}>
+                          Save
+                        </button>
+                        <button style={buildButtonStyles('secondary')} onClick={() => setEditingId(null)}>
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={styles.actions}>
+                        <button
+                          style={styles.iconButton}
+                          onClick={() => startEdit(brand)}
+                          title="Edit brand"
+                        >
+                          {icons.edit}
+                        </button>
+                        <button
+                          style={{ ...styles.iconButton, color: theme.colors.danger }}
+                          onClick={() => deleteBrand(brand.id)}
+                          title="Delete brand"
+                        >
+                          {icons.trash}
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
-/* ---------------------------
-   Styles
----------------------------- */
 const styles = {
-  card: {
-    background: "#fff",
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
+  page: {
+    padding: theme.spacing.page,
+    maxWidth: 1000,
+    margin: "0 auto",
   },
-  input: {
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    gap: theme.spacing.gap,
+  },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  message: {
+    padding: theme.spacing.small,
+    borderRadius: theme.borderRadius.button,
+    color: theme.colors.background,
+    textAlign: "center",
+  },
+  addForm: {
+    marginBottom: theme.spacing.gap,
+  },
+  formRow: {
+    display: "flex",
+    gap: theme.spacing.gap,
+    marginBottom: theme.spacing.gap,
+  },
+  formActions: {
+    display: "flex",
+    gap: theme.spacing.small,
+    justifyContent: "flex-end",
+  },
+  tableCard: {
+    overflow: "hidden",
+  },
+  table: {
     width: "100%",
-    padding: 8,
-    marginBottom: 8
+    borderCollapse: "collapse",
   },
-  suggestions: {
-    border: "1px solid #ddd",
-    maxHeight: 200,
-    overflowY: "auto"
+  th: {
+    padding: theme.spacing.small,
+    textAlign: "left",
+    fontWeight: 600,
+    color: theme.colors.text,
+    borderBottom: `1px solid ${theme.colors.border}`,
   },
-  suggestion: {
-    padding: 8,
-    cursor: "pointer"
+  td: {
+    padding: theme.spacing.small,
+    verticalAlign: "middle",
   },
-  danger: {
-    background: "#dc2626",
-    color: "#fff",
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: "50%",
+  },
+  actions: {
+    display: "flex",
+    gap: theme.spacing.tiny,
+  },
+  iconButton: {
+    background: "none",
     border: "none",
-    padding: "6px 12px"
-  }
+    cursor: "pointer",
+    padding: theme.spacing.tiny,
+    borderRadius: theme.borderRadius.button,
+    color: theme.colors.textMuted,
+    transition: theme.transition,
+  },
+  editActions: {
+    display: "flex",
+    gap: theme.spacing.tiny,
+  },
 };
