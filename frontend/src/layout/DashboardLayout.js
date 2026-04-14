@@ -3,10 +3,8 @@ import Header from "./Header";
 import { theme, getResponsiveValue } from "../theme";
 
 export default function DashboardLayout({ sidebar, children, user, activePage, dark = false }) {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < theme.breakpoints.mobile);
-
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < theme.breakpoints.mobile);
+    const handleResize = () => {};
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);

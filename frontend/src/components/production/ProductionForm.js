@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { theme, buildCardStyles, buildInputStyles, buildButtonStyles, getThemeColors, icons } from "../../theme";
+import { theme, buildCardStyles, buildInputStyles, buildButtonStyles, getThemeColors } from "../../theme";
 
 export default function ProductionForm({
   onBarrelChange,

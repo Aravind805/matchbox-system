@@ -17,7 +17,6 @@ export default function Sidebar({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const colors = getThemeColors(dark);
   const width = getResponsiveValue(48, 240);
 
   const navItems = [

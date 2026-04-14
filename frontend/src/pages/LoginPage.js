@@ -35,8 +35,6 @@ export default function LoginPage({ onLogin }) {
     }
   };
 
-  const colors = getThemeColors();
-
   return (
     <>
       <style>

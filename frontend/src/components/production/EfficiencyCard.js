@@ -16,7 +16,6 @@ export default function EfficiencyCard({ expected, actual, dark = false }) {
   }
 
   const efficiency = ((actual / expected) * 100).toFixed(1);
-  const variance = (actual - expected).toFixed(2);
 
   let status = "GOOD";
   let statusColor = theme.colors.success;
